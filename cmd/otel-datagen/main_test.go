@@ -9,11 +9,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/david/otel-datagen/internal/aggro"
-	"github.com/david/otel-datagen/internal/generators"
-	"github.com/david/otel-datagen/internal/metrics"
-	"github.com/david/otel-datagen/internal/randomness"
-	"github.com/david/otel-datagen/internal/timestamps"
+	"github.com/antithesishq/otel-datagen/internal/aggro"
+	"github.com/antithesishq/otel-datagen/internal/generators"
+	"github.com/antithesishq/otel-datagen/internal/metrics"
+	"github.com/antithesishq/otel-datagen/internal/randomness"
+	"github.com/antithesishq/otel-datagen/internal/timestamps"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -86,9 +86,9 @@ func generateTracesToFile(numSpans int, numAttributes int, overrideAttrs []strin
 			StringActive:    true,
 			NumericActive:   true,
 			TimestampActive: true,
-			StringTarget:    "",  // random targeting
-			NumericTarget:   "",  // random targeting
-			TimestampTarget: "",  // random targeting
+			StringTarget:    "", // random targeting
+			NumericTarget:   "", // random targeting
+			TimestampTarget: "", // random targeting
 		}
 	}
 	err = generators.GenerateTracesWithProvider(ctx, tp, 1, numSpans, numAttributes, overrideAttrs, aggroConfig, timestampConfig)
@@ -125,7 +125,7 @@ func generateTracesToFileWithResource(numSpans int, numAttributes int, overrideA
 	for key, value := range resourceAttrs {
 		attrs = append(attrs, attribute.String(key, value))
 	}
-	
+
 	res, err := resource.New(ctx,
 		resource.WithAttributes(attrs...),
 	)
@@ -157,9 +157,9 @@ func generateTracesToFileWithResource(numSpans int, numAttributes int, overrideA
 			StringActive:    true,
 			NumericActive:   true,
 			TimestampActive: true,
-			StringTarget:    "",  // random targeting
-			NumericTarget:   "",  // random targeting
-			TimestampTarget: "",  // random targeting
+			StringTarget:    "", // random targeting
+			NumericTarget:   "", // random targeting
+			TimestampTarget: "", // random targeting
 		}
 	}
 	err = generators.GenerateTracesWithProvider(ctx, tp, 1, numSpans, numAttributes, overrideAttrs, aggroConfig, timestampConfig)
@@ -243,7 +243,7 @@ func TestGenerateTracesBasic(t *testing.T) {
 	assert.Contains(t, output, "trace-1-root")
 	assert.Contains(t, output, "fake.attr.1")
 	assert.Contains(t, output, "fake.attr.2")
-	
+
 	// Should not contain aggro metadata with probability 0.0
 	assert.NotContains(t, output, "aggro.string")
 	assert.NotContains(t, output, "aggro.numeric")
@@ -299,7 +299,7 @@ func TestGenerateTracesWithAggroProbability(t *testing.T) {
 	output := string(content)
 	// New aggro system should add metadata attributes showing what was modified
 	assert.Contains(t, output, "aggro.string")
-	assert.Contains(t, output, "aggro.numeric") 
+	assert.Contains(t, output, "aggro.numeric")
 	assert.Contains(t, output, "aggro.timestamp")
 }
 
@@ -343,7 +343,7 @@ func TestGenerateTracesOutputStructure(t *testing.T) {
 	assert.Contains(t, output, "\"Attributes\":")
 	assert.Contains(t, output, "\"Resource\":")
 	assert.Contains(t, output, "\"trace-1-root\"")
-	
+
 	// Verify it's valid JSON by attempting to parse the entire output
 	var spanData map[string]interface{}
 	err = json.Unmarshal(content, &spanData)
@@ -364,7 +364,7 @@ func TestGenerateTracesNoAggroValues(t *testing.T) {
 
 	output := string(content)
 	assert.NotContains(t, output, "aggro.string", "Should not contain aggro metadata with probability 0.0")
-	assert.NotContains(t, output, "aggro.numeric", "Should not contain aggro metadata with probability 0.0") 
+	assert.NotContains(t, output, "aggro.numeric", "Should not contain aggro metadata with probability 0.0")
 	assert.NotContains(t, output, "aggro.timestamp", "Should not contain aggro metadata with probability 0.0")
 	assert.Contains(t, output, "fake.attr.1")
 	assert.Contains(t, output, "fake.attr.2")
@@ -374,7 +374,7 @@ func TestResourceAttributes(t *testing.T) {
 	tmpDir := t.TempDir()
 	outputFile := filepath.Join(tmpDir, "traces.json")
 
-	// Test custom resource attributes  
+	// Test custom resource attributes
 	err := generateTracesToFileWithResource(1, 1, []string{}, 0.0, outputFile, map[string]string{
 		"service.name":    "custom-service",
 		"service.version": "1.2.3",
@@ -395,14 +395,14 @@ func TestResourceAttributes(t *testing.T) {
 func TestOTLPExporterCreation(t *testing.T) {
 	// This test verifies that OTLP exporter creation doesn't panic with an invalid endpoint
 	// In a real scenario, this would fail to connect, but we just want to test the setup
-	
+
 	// Test that creating an OTLP exporter doesn't immediately fail
 	ctx := context.Background()
 	_, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithEndpoint("http://localhost:4317"),
 		otlptracegrpc.WithInsecure(),
 	)
-	
+
 	// The creation should succeed even if the endpoint is not reachable
 	// The actual connection happens during export
 	assert.NoError(t, err)
@@ -510,8 +510,8 @@ func generateTracesToFileWithConfig(outputFile string, configFile string) error 
 	}
 
 	// Extract values from config
-	numSpans := 2        // default
-	numAttributes := 3   // default
+	numSpans := 2      // default
+	numAttributes := 3 // default
 
 	if generate, ok := config["generate"].(map[string]interface{}); ok {
 		if traces, ok := generate["traces"].(map[string]interface{}); ok {
@@ -672,7 +672,7 @@ func generateTracesToFileWithConfigAndOverrides(outputFile string, configFile st
 
 	// Force flush to ensure output
 	return tp.ForceFlush(ctx)
-}// generateLogsToFile is a test helper that outputs logs to a file
+} // generateLogsToFile is a test helper that outputs logs to a file
 func generateLogsToFile(numLogs int, numAttributes int, overrideAttrs []string, aggroProb float64, outputFile string) error {
 	ctx := context.Background()
 
@@ -832,7 +832,7 @@ func TestGenerateLogsWithAggroProbability(t *testing.T) {
 	output := string(content)
 	// Logs still use the old boundary.value approach since they haven't been fully updated to aggro
 	assert.Contains(t, output, "aggro.value")
-}// generateMetricsToFile is a test helper that outputs metrics to a file
+} // generateMetricsToFile is a test helper that outputs metrics to a file
 func generateMetricsToFile(numMetrics int, metricType string, metricName string, outputFile string) error {
 	ctx := context.Background()
 
@@ -1121,9 +1121,9 @@ func TestAggroStringChaosEngineering(t *testing.T) {
 
 	// Create aggro config for string chaos engineering with random targeting
 	aggroConfig := &aggro.AggroConfig{
-		StringActive:  true,
-		StringTarget:  "", // random targeting
-		NumericActive: false,
+		StringActive:    true,
+		StringTarget:    "", // random targeting
+		NumericActive:   false,
 		TimestampActive: false,
 	}
 
@@ -1137,7 +1137,7 @@ func TestAggroStringChaosEngineering(t *testing.T) {
 	output := string(content)
 	// Should contain aggro string metadata
 	assert.Contains(t, output, "aggro.string")
-	// Should not contain other aggro types  
+	// Should not contain other aggro types
 	assert.NotContains(t, output, "aggro.numeric")
 	assert.NotContains(t, output, "aggro.timestamp")
 }
@@ -1205,7 +1205,7 @@ func TestMultipleAggroTypesIntegration(t *testing.T) {
 		StringActive:    true,
 		StringTarget:    "", // random targeting
 		NumericActive:   true,
-		NumericTarget:   "", // random targeting  
+		NumericTarget:   "", // random targeting
 		TimestampActive: true,
 		TimestampTarget: "", // random targeting
 	}
@@ -1259,9 +1259,9 @@ func TestAggroWithOverrideAttributes(t *testing.T) {
 	// Test aggro with override attributes
 	overrides := []string{"custom.field=original-value"}
 	aggroConfig := &aggro.AggroConfig{
-		StringActive: true,
-		StringTarget: "custom.field", // target the override attribute
-		NumericActive: false,
+		StringActive:    true,
+		StringTarget:    "custom.field", // target the override attribute
+		NumericActive:   false,
 		TimestampActive: false,
 	}
 
@@ -1289,7 +1289,7 @@ func TestAggroMetadataTracking(t *testing.T) {
 	aggroConfig := &aggro.AggroConfig{
 		StringActive:    true,
 		StringTarget:    "fake.attr.1", // target first fake attribute
-		NumericActive:   true, 
+		NumericActive:   true,
 		NumericTarget:   "fake.attr.2", // target second fake attribute
 		TimestampActive: false,
 	}
@@ -1302,15 +1302,15 @@ func TestAggroMetadataTracking(t *testing.T) {
 	require.NoError(t, err)
 
 	output := string(content)
-	
+
 	// Should contain metadata for both string and numeric aggro
 	assert.Contains(t, output, "aggro.string")
 	assert.Contains(t, output, "aggro.numeric")
-	
+
 	// Verify the metadata contains the correct target attribute names
 	assert.Contains(t, output, "fake.attr.1") // string target
 	assert.Contains(t, output, "fake.attr.2") // numeric target
-	
+
 	// Should not contain timestamp metadata since it's disabled
 	assert.NotContains(t, output, "aggro.timestamp")
 }
@@ -1338,7 +1338,7 @@ func TestAggroNoModificationWhenInactive(t *testing.T) {
 	assert.NotContains(t, output, "aggro.string")
 	assert.NotContains(t, output, "aggro.numeric")
 	assert.NotContains(t, output, "aggro.timestamp")
-	
+
 	// Should still contain regular fake attributes
 	assert.Contains(t, output, "fake.attr.1")
 	assert.Contains(t, output, "fake.attr.2")
@@ -1372,13 +1372,13 @@ func TestEnhancedAggroEdgeCases(t *testing.T) {
 		require.NoError(t, err)
 
 		output := string(content)
-		
+
 		// Check for any sign of enhanced features (unicode, emojis, scientific notation, etc.)
 		if strings.Contains(output, "🚀") || strings.Contains(output, "💯") ||
-		   strings.Contains(output, "Inf") || strings.Contains(output, "NaN") ||
-		   strings.Contains(output, "1e") || strings.Contains(output, "E+") ||
-		   strings.Contains(output, "café") || strings.Contains(output, "こんにちは") ||
-		   strings.Contains(output, "9999-12-31") || strings.Contains(output, "1970-01-01") {
+			strings.Contains(output, "Inf") || strings.Contains(output, "NaN") ||
+			strings.Contains(output, "1e") || strings.Contains(output, "E+") ||
+			strings.Contains(output, "café") || strings.Contains(output, "こんにちは") ||
+			strings.Contains(output, "9999-12-31") || strings.Contains(output, "1970-01-01") {
 			foundAdvancedFeatures = true
 			break
 		}
@@ -1391,36 +1391,36 @@ func TestEnhancedAggroEdgeCases(t *testing.T) {
 func TestAggroFlagSyntaxBehavior(t *testing.T) {
 	// This test documents the current behavior of aggro flags
 	// and serves as a regression test for flag parsing
-	
+
 	tmpDir := t.TempDir()
 	outputFile1 := filepath.Join(tmpDir, "with-equals.json")
 	outputFile2 := filepath.Join(tmpDir, "without-equals.json")
 
 	// Test with explicit empty string (should work)
 	aggroConfigWithEquals := &aggro.AggroConfig{
-		StringActive: true,
-		StringTarget: "", // empty = random targeting
-		NumericActive: false,
+		StringActive:    true,
+		StringTarget:    "", // empty = random targeting
+		NumericActive:   false,
 		TimestampActive: false,
 	}
-	
+
 	err := generateTracesToFileWithAggro(1, 3, []string{}, aggroConfigWithEquals, outputFile1)
 	require.NoError(t, err)
 
-	// Test with no aggro active (simulating --aggro-string without value)  
+	// Test with no aggro active (simulating --aggro-string without value)
 	aggroConfigWithoutEquals := &aggro.AggroConfig{
-		StringActive: false, // This simulates the behavior when flag isn't properly detected
-		NumericActive: false,
+		StringActive:    false, // This simulates the behavior when flag isn't properly detected
+		NumericActive:   false,
 		TimestampActive: false,
 	}
-	
+
 	err = generateTracesToFileWithAggro(1, 3, []string{}, aggroConfigWithoutEquals, outputFile2)
 	require.NoError(t, err)
 
 	// Read outputs
 	contentWithEquals, err := os.ReadFile(outputFile1)
 	require.NoError(t, err)
-	
+
 	contentWithoutEquals, err := os.ReadFile(outputFile2)
 	require.NoError(t, err)
 

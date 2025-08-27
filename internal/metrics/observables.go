@@ -3,7 +3,7 @@ package metrics
 import (
 	"context"
 
-	"github.com/david/otel-datagen/internal/randomness"
+	"github.com/antithesishq/otel-datagen/internal/randomness"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 )
@@ -17,7 +17,7 @@ func GenerateInt64ObservableCounter(ctx context.Context, meter metric.Meter, met
 		values[i] = int64(randomness.Intn(counterMax-counterMin+1) + counterMin)
 		attributeSets[i] = generateMetricAttributes(i, aggroValues, aggroProb)
 	}
-	
+
 	_, err := meter.Int64ObservableCounter(metricName, metric.WithInt64Callback(func(_ context.Context, observer metric.Int64Observer) error {
 		for i, value := range values {
 			observer.Observe(value, metric.WithAttributes(attributeSets[i]...))
@@ -36,7 +36,7 @@ func GenerateFloat64ObservableCounter(ctx context.Context, meter metric.Meter, m
 		values[i] = float64(randomness.Intn(counterMax-counterMin+1) + counterMin)
 		attributeSets[i] = generateMetricAttributes(i, aggroValues, aggroProb)
 	}
-	
+
 	_, err := meter.Float64ObservableCounter(metricName, metric.WithFloat64Callback(func(_ context.Context, observer metric.Float64Observer) error {
 		for i, value := range values {
 			observer.Observe(value, metric.WithAttributes(attributeSets[i]...))
@@ -58,7 +58,7 @@ func GenerateInt64ObservableUpDownCounter(ctx context.Context, meter metric.Mete
 		}
 		attributeSets[i] = generateMetricAttributes(i, aggroValues, aggroProb)
 	}
-	
+
 	_, err := meter.Int64ObservableUpDownCounter(metricName, metric.WithInt64Callback(func(_ context.Context, observer metric.Int64Observer) error {
 		for i, value := range values {
 			observer.Observe(value, metric.WithAttributes(attributeSets[i]...))
@@ -80,7 +80,7 @@ func GenerateFloat64ObservableUpDownCounter(ctx context.Context, meter metric.Me
 		}
 		attributeSets[i] = generateMetricAttributes(i, aggroValues, aggroProb)
 	}
-	
+
 	_, err := meter.Float64ObservableUpDownCounter(metricName, metric.WithFloat64Callback(func(_ context.Context, observer metric.Float64Observer) error {
 		for i, value := range values {
 			observer.Observe(value, metric.WithAttributes(attributeSets[i]...))
@@ -99,7 +99,7 @@ func GenerateInt64ObservableGauge(ctx context.Context, meter metric.Meter, metri
 		values[i] = int64(randomness.Intn(counterMax-counterMin+1) + counterMin)
 		attributeSets[i] = generateMetricAttributes(i, aggroValues, aggroProb)
 	}
-	
+
 	_, err := meter.Int64ObservableGauge(metricName, metric.WithInt64Callback(func(_ context.Context, observer metric.Int64Observer) error {
 		for i, value := range values {
 			observer.Observe(value, metric.WithAttributes(attributeSets[i]...))
@@ -118,7 +118,7 @@ func GenerateFloat64ObservableGauge(ctx context.Context, meter metric.Meter, met
 		values[i] = float64(randomness.Intn(counterMax-counterMin+1) + counterMin)
 		attributeSets[i] = generateMetricAttributes(i, aggroValues, aggroProb)
 	}
-	
+
 	_, err := meter.Float64ObservableGauge(metricName, metric.WithFloat64Callback(func(_ context.Context, observer metric.Float64Observer) error {
 		for i, value := range values {
 			observer.Observe(value, metric.WithAttributes(attributeSets[i]...))

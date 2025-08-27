@@ -6,9 +6,9 @@ import (
 	"log"
 	"strings"
 
-	"github.com/david/otel-datagen/internal/aggro"
-	"github.com/david/otel-datagen/internal/exporters"
-	"github.com/david/otel-datagen/internal/timestamps"
+	"github.com/antithesishq/otel-datagen/internal/aggro"
+	"github.com/antithesishq/otel-datagen/internal/exporters"
+	"github.com/antithesishq/otel-datagen/internal/timestamps"
 	"github.com/go-faker/faker/v4"
 	otellog "go.opentelemetry.io/otel/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
@@ -18,7 +18,7 @@ import (
 func GenerateLogs(numLogs int, numAttributes int, overrideAttrs []string, resourceAttrs []string, otlpEndpoint string, otlpProtocol string, stdoutEnabled bool, timestampConfig *timestamps.TimestampConfig) {
 	// Parse aggro configuration for this component
 	aggroConfig := aggro.ParseAggroConfig("logs")
-	
+
 	ctx := context.Background()
 
 	// Create exporter configuration
@@ -28,7 +28,6 @@ func GenerateLogs(numLogs int, numAttributes int, overrideAttrs []string, resour
 		Insecure:      true,         // For local testing, can be made configurable
 		StdoutEnabled: stdoutEnabled,
 	}
-	
 
 	// Create dual log exporters (console + OTLP when endpoint specified)
 	logExporters, err := exporters.CreateDualLogExporters(ctx, exporterConfig, nil)
@@ -48,7 +47,7 @@ func GenerateLogs(numLogs int, numAttributes int, overrideAttrs []string, resour
 		logProcessors = append(logProcessors, sdklog.WithProcessor(sdklog.NewBatchProcessor(exporter)))
 	}
 	logProcessors = append(logProcessors, sdklog.WithResource(res))
-	
+
 	lp := sdklog.NewLoggerProvider(logProcessors...)
 	defer func() {
 		if err := lp.Shutdown(ctx); err != nil {
@@ -80,56 +79,55 @@ func GenerateLogsWithProvider(ctx context.Context, lp *sdklog.LoggerProvider, nu
 			overrides[parts[0]] = parts[1]
 		}
 	}
-	
 
 	// Generate the specified number of log records
 	for i := 0; i < numLogs; i++ {
 		logMessage := fmt.Sprintf("example-log-%d", i+1)
-		
+
 		// Create attributes list starting with base attribute
 		var attrs []otellog.KeyValue
 		attrs = append(attrs, otellog.String("log.level", "info"))
-		
+
 		// Generate random attributes using faker
 		for j := 0; j < numAttributes; j++ {
 			key := fmt.Sprintf("fake.attr.%d", j+1)
 			value := faker.Word()
-			
+
 			// Check for override
 			if override, exists := overrides[key]; exists {
 				value = override
 			}
-			
+
 			attrs = append(attrs, otellog.String(key, value))
 		}
-		
+
 		// Apply any remaining overrides that didn't match generated keys
 		for key, value := range overrides {
 			if !strings.HasPrefix(key, "fake.attr.") {
 				attrs = append(attrs, otellog.String(key, value))
 			}
 		}
-		
+
 		// Apply aggro modifications if configured
 		skipKeys := []string{"log.level"} // System attributes that shouldn't be replaced
 		// Use gRPC sanitization for now (will be made conditional in next iteration)
 		modifiedAttrs, modifiedMessage, metadataAttrs := aggroConfig.ApplyAggroToLogAttributes(attrs, logMessage, skipKeys, "grpc")
 		attrs = modifiedAttrs
 		logMessage = modifiedMessage
-		
+
 		// Add metadata attributes about aggro modifications
 		attrs = append(attrs, metadataAttrs...)
-		
+
 		record := otellog.Record{}
 		record.SetBody(otellog.StringValue(logMessage))
 		record.SetSeverity(otellog.SeverityInfo)
-		
+
 		// Set timestamp for this log record
 		logTime := timestampConfig.CalculateTimestamp(i)
 		record.SetTimestamp(logTime)
 		// Also set observed timestamp to match for historical data generation
 		record.SetObservedTimestamp(logTime)
-		
+
 		record.AddAttributes(attrs...)
 		logger.Emit(ctx, record)
 	}

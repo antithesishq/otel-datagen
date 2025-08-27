@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/david/otel-datagen/internal/aggro"
+	"github.com/antithesishq/otel-datagen/internal/aggro"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
@@ -12,11 +12,11 @@ import (
 func Generate(ctx context.Context, mp *sdkmetric.MeterProvider, numMetrics int, metricType string, metricName string, counterMin int, counterMax int, aggroConfig *aggro.AggroConfig, protocol string) error {
 	// Get meter
 	meter := mp.Meter("otel-datagen")
-	
+
 	// Generate aggro values for aggro system
 	var aggroValues []string
 	var effectiveAggroProb float64
-	
+
 	if aggroConfig != nil && aggroConfig.HasAnyActive() {
 		// Use aggro values when aggro is configured - set probability to 1.0 to always trigger
 		aggroValues = aggro.GetAggroValuesForProtocol(protocol)

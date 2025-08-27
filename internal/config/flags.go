@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/david/otel-datagen/internal/randomness"
+	"github.com/antithesishq/otel-datagen/internal/randomness"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ func SetupFlags(rootCmd, generateCmd, tracesCmd, logsCmd, metricsCmd *cobra.Comm
 	tracesCmd.Flags().Int("num-attributes", 5, "Number of additional random attributes to add")
 	tracesCmd.Flags().StringSlice("override-attr", []string{}, "Override specific attributes (key=value)")
 	tracesCmd.Flags().String("aggro-timestamp", "", "Apply timestamp chaos engineering (empty=random, 'attr'=target specific attribute)")
-	tracesCmd.Flags().String("aggro-numeric", "", "Apply numeric chaos engineering (empty=random, 'attr'=target specific attribute)")  
+	tracesCmd.Flags().String("aggro-numeric", "", "Apply numeric chaos engineering (empty=random, 'attr'=target specific attribute)")
 	tracesCmd.Flags().String("aggro-string", "", "Apply string chaos engineering (empty=random, 'attr'=target specific attribute)")
 
 	// Logs-specific flags
@@ -31,7 +31,7 @@ func SetupFlags(rootCmd, generateCmd, tracesCmd, logsCmd, metricsCmd *cobra.Comm
 	logsCmd.Flags().Int("num-attributes", 5, "Number of additional random attributes to add")
 	logsCmd.Flags().StringSlice("override-attr", []string{}, "Override specific attributes (key=value)")
 	logsCmd.Flags().String("aggro-timestamp", "", "Apply timestamp chaos engineering (empty=random, 'attr'=target specific attribute)")
-	logsCmd.Flags().String("aggro-numeric", "", "Apply numeric chaos engineering (empty=random, 'attr'=target specific attribute)")  
+	logsCmd.Flags().String("aggro-numeric", "", "Apply numeric chaos engineering (empty=random, 'attr'=target specific attribute)")
 	logsCmd.Flags().String("aggro-string", "", "Apply string chaos engineering (empty=random, 'attr'=target specific attribute)")
 
 	// Metrics-specific flags
@@ -41,6 +41,6 @@ func SetupFlags(rootCmd, generateCmd, tracesCmd, logsCmd, metricsCmd *cobra.Comm
 	metricsCmd.Flags().Int("counter-min", 1, "Minimum value for metrics")
 	metricsCmd.Flags().Int("counter-max", 100, "Maximum value for metrics")
 	metricsCmd.Flags().String("aggro-timestamp", "", "Apply timestamp chaos engineering (empty=random, 'attr'=target specific attribute)")
-	metricsCmd.Flags().String("aggro-numeric", "", "Apply numeric chaos engineering (empty=random, 'attr'=target specific attribute)")  
+	metricsCmd.Flags().String("aggro-numeric", "", "Apply numeric chaos engineering (empty=random, 'attr'=target specific attribute)")
 	metricsCmd.Flags().String("aggro-string", "", "Apply string chaos engineering (empty=random, 'attr'=target specific attribute)")
 }

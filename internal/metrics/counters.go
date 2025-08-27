@@ -3,7 +3,7 @@ package metrics
 import (
 	"context"
 
-	"github.com/david/otel-datagen/internal/randomness"
+	"github.com/antithesishq/otel-datagen/internal/randomness"
 	"github.com/go-faker/faker/v4"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -14,13 +14,13 @@ func generateMetricAttributes(i int, aggroValues []string, aggroProb float64) []
 	var attrs []attribute.KeyValue
 	attrs = append(attrs, attribute.String("fake.attr", faker.Word()))
 	attrs = append(attrs, attribute.Int("iteration", i+1))
-	
+
 	// Add aggro value attribute if probability check passes
 	if aggroProb > 0 && len(aggroValues) > 0 && randomness.Float64() < aggroProb {
 		aggroValue := randomness.Choice(aggroValues)
 		attrs = append(attrs, attribute.String("aggro.value", aggroValue))
 	}
-	
+
 	return attrs
 }
 

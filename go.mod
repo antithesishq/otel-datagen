@@ -1,4 +1,4 @@
-module github.com/david/otel-datagen
+module github.com/antithesishq/otel-datagen
 
 go 1.24.5
 

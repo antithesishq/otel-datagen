@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/david/otel-datagen/internal/aggro"
-	"github.com/david/otel-datagen/internal/exporters"
-	"github.com/david/otel-datagen/internal/randomness"
-	"github.com/david/otel-datagen/internal/timestamps"
+	"github.com/antithesishq/otel-datagen/internal/aggro"
+	"github.com/antithesishq/otel-datagen/internal/exporters"
+	"github.com/antithesishq/otel-datagen/internal/randomness"
+	"github.com/antithesishq/otel-datagen/internal/timestamps"
 	"github.com/go-faker/faker/v4"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -23,7 +23,7 @@ import (
 func GenerateTraces(numTraces int, numSpans int, numAttributes int, overrideAttrs []string, resourceAttrs []string, otlpEndpoint string, stdoutEnabled bool, timestampConfig *timestamps.TimestampConfig) {
 	// Parse aggro configuration for this component
 	aggroConfig := aggro.ParseAggroConfig("traces")
-	
+
 	ctx := context.Background()
 
 	// Create exporter configuration
@@ -88,16 +88,15 @@ func GenerateTracesWithProvider(ctx context.Context, tp *trace.TracerProvider, n
 		}
 	}
 
-
 	// Generate the specified number of traces
 	totalSpans := 0
 	for traceIdx := 0; traceIdx < numTraces; traceIdx++ {
 		// Calculate timestamp for the first span of this trace (will be used for root span)
 		rootStartTime := timestampConfig.CalculateTimestamp(totalSpans)
-		
+
 		// Create a new trace context for this trace with the calculated timestamp
 		traceCtx, rootSpan := tracer.Start(ctx, fmt.Sprintf("trace-%d-root", traceIdx+1), oteltrace.WithTimestamp(rootStartTime))
-		
+
 		// Generate the specified number of spans for this trace
 		for spanIdx := 0; spanIdx < numSpans; spanIdx++ {
 			// Calculate timestamp for this span across all traces and spans
@@ -106,7 +105,7 @@ func GenerateTracesWithProvider(ctx context.Context, tp *trace.TracerProvider, n
 
 			var span oteltrace.Span
 			var spanName string
-			
+
 			// First span of each trace is the root span we already created
 			if spanIdx == 0 {
 				span = rootSpan
@@ -146,7 +145,7 @@ func GenerateTracesWithProvider(ctx context.Context, tp *trace.TracerProvider, n
 			skipKeys := []string{"http.method"} // System attributes that shouldn't be replaced
 			modifiedAttrs, metadataAttrs := aggroConfig.ApplyAggroToTraceAttributes(attrs, skipKeys, "grpc")
 			attrs = modifiedAttrs
-			
+
 			// Add metadata attributes about aggro modifications
 			attrs = append(attrs, metadataAttrs...)
 

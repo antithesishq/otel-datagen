@@ -3,7 +3,7 @@ package metrics
 import (
 	"context"
 
-	"github.com/david/otel-datagen/internal/randomness"
+	"github.com/antithesishq/otel-datagen/internal/randomness"
 	"go.opentelemetry.io/otel/metric"
 )
 

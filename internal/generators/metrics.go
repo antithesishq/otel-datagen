@@ -5,22 +5,22 @@ import (
 	"log"
 	"time"
 
-	"github.com/david/otel-datagen/internal/aggro"
-	"github.com/david/otel-datagen/internal/exporters"
-	"github.com/david/otel-datagen/internal/metrics"
-	"github.com/david/otel-datagen/internal/randomness"
-	"github.com/david/otel-datagen/internal/timestamps"
+	"github.com/antithesishq/otel-datagen/internal/aggro"
+	"github.com/antithesishq/otel-datagen/internal/exporters"
+	"github.com/antithesishq/otel-datagen/internal/metrics"
+	"github.com/antithesishq/otel-datagen/internal/randomness"
+	"github.com/antithesishq/otel-datagen/internal/timestamps"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
 // GenerateMetrics generates metric data with the given parameters
 func GenerateMetrics(numMetrics int, metricType string, metricName string, counterMin int, counterMax int, resourceAttrs []string, otlpEndpoint string, otlpProtocol string, stdoutEnabled bool, timestampConfig *timestamps.TimestampConfig) {
 	// Parse aggro configuration for this component
 	aggroConfig := aggro.ParseAggroConfig("metrics")
-	
+
 	ctx := context.Background()
 
 	// Create exporter configuration
@@ -69,7 +69,7 @@ func GenerateMetrics(numMetrics int, metricType string, metricName string, count
 			options = append(options, sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exporter)))
 		}
 		options = append(options, sdkmetric.WithResource(res))
-		
+
 		mp := sdkmetric.NewMeterProvider(options...)
 		defer func() {
 			if err := mp.Shutdown(ctx); err != nil {
@@ -99,17 +99,17 @@ func GenerateMetricsWithProvider(ctx context.Context, mp *sdkmetric.MeterProvide
 func GenerateMetricsWithTimestamps(ctx context.Context, mp *sdkmetric.MeterProvider, reader *sdkmetric.ManualReader, exporters []sdkmetric.Exporter, numMetrics int, metricType string, metricName string, counterMin int, counterMax int, timestampConfig *timestamps.TimestampConfig) error {
 	// Generate a time series by creating individual data points at different timestamps
 	// Each data point gets fresh random values to create natural variation
-	
+
 	for i := 0; i < numMetrics; i++ {
 		// Create individual meter provider for this timestamp
 		individualReader := sdkmetric.NewManualReader()
-		
+
 		// Get resource from original meter provider (reuse existing resource)
 		resourceMetrics := &metricdata.ResourceMetrics{}
 		if err := reader.Collect(ctx, resourceMetrics); err != nil {
 			return err
 		}
-		
+
 		// Create new meter provider with same resource
 		individualMP := sdkmetric.NewMeterProvider(
 			sdkmetric.WithReader(individualReader),
@@ -118,37 +118,37 @@ func GenerateMetricsWithTimestamps(ctx context.Context, mp *sdkmetric.MeterProvi
 		defer func(mp *sdkmetric.MeterProvider) {
 			mp.Shutdown(ctx)
 		}(individualMP)
-		
+
 		// Generate metrics with timestamped values - this creates fresh random values each time
 		if err := generateSingleTimestampedMetric(ctx, individualMP, metricType, metricName, counterMin, counterMax, i); err != nil {
 			return err
 		}
-		
+
 		// Calculate the intended timestamp for this data point
 		intendedTimestamp := timestampConfig.CalculateTimestamp(i)
-		
+
 		// Collect metrics from the individual provider
 		individualResourceMetrics := &metricdata.ResourceMetrics{}
 		if err := individualReader.Collect(ctx, individualResourceMetrics); err != nil {
 			return err
 		}
-		
+
 		// Manually adjust timestamps in the collected data to match intended timestamp
 		adjustTimestamps(individualResourceMetrics, intendedTimestamp)
-		
+
 		// Export the timestamped metrics to all exporters
 		for _, exporter := range exporters {
 			if err := exporter.Export(ctx, individualResourceMetrics); err != nil {
 				return err
 			}
 		}
-		
+
 		// Small delay between iterations for cleaner output
 		if i < numMetrics-1 {
 			time.Sleep(10 * time.Millisecond)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -156,13 +156,13 @@ func GenerateMetricsWithTimestamps(ctx context.Context, mp *sdkmetric.MeterProvi
 func generateSingleTimestampedMetric(ctx context.Context, mp *sdkmetric.MeterProvider, metricType string, metricName string, counterMin int, counterMax int, iteration int) error {
 	// Get meter
 	meter := mp.Meter("otel-datagen")
-	
+
 	// Generate fresh attributes for this iteration
 	attrs := generateTimestampedMetricAttributes(iteration)
-	
+
 	// Generate fresh random value for this timestamp
 	value := generateFreshRandomValue(counterMin, counterMax)
-	
+
 	// Create the metric based on type and record the value
 	switch metricType {
 	case "gauge", "int64-gauge":
@@ -171,61 +171,61 @@ func generateSingleTimestampedMetric(ctx context.Context, mp *sdkmetric.MeterPro
 			return err
 		}
 		gauge.Record(ctx, int64(value), metric.WithAttributes(attrs...))
-		
+
 	case "float64-gauge":
 		gauge, err := meter.Float64Gauge(metricName)
 		if err != nil {
 			return err
 		}
 		gauge.Record(ctx, float64(value), metric.WithAttributes(attrs...))
-		
+
 	case "counter", "int64-counter":
 		counter, err := meter.Int64Counter(metricName)
 		if err != nil {
 			return err
 		}
 		counter.Add(ctx, int64(value), metric.WithAttributes(attrs...))
-		
+
 	case "float64-counter":
 		counter, err := meter.Float64Counter(metricName)
 		if err != nil {
 			return err
 		}
 		counter.Add(ctx, float64(value), metric.WithAttributes(attrs...))
-		
+
 	case "histogram", "float64-histogram":
 		histogram, err := meter.Float64Histogram(metricName)
 		if err != nil {
 			return err
 		}
 		histogram.Record(ctx, float64(value), metric.WithAttributes(attrs...))
-		
+
 	case "int64-histogram":
 		histogram, err := meter.Int64Histogram(metricName)
 		if err != nil {
 			return err
 		}
 		histogram.Record(ctx, int64(value), metric.WithAttributes(attrs...))
-		
+
 	default:
 		// For other metric types, fall back to the original generation method
 		return metrics.Generate(ctx, mp, 1, metricType, metricName, counterMin, counterMax, nil, "grpc")
 	}
-	
+
 	return nil
 }
 
 // generateTimestampedMetricAttributes creates consistent attributes for time-series data
 func generateTimestampedMetricAttributes(iteration int) []attribute.KeyValue {
 	var attrs []attribute.KeyValue
-	
+
 	// Use absolutely minimal consistent attributes to ensure single time series
 	// No changing attributes that would create separate series in Prometheus
 	attrs = append(attrs, attribute.String("instance", "primary"))
-	
+
 	// Don't add conditional attributes - aggro probability will be handled in value generation
 	// This ensures all data points belong to the same time series
-	
+
 	return attrs
 }
 
@@ -241,7 +241,7 @@ func adjustTimestamps(resourceMetrics *metricdata.ResourceMetrics, intendedTimes
 	for i := range resourceMetrics.ScopeMetrics {
 		for j := range resourceMetrics.ScopeMetrics[i].Metrics {
 			metric := &resourceMetrics.ScopeMetrics[i].Metrics[j]
-			
+
 			switch data := metric.Data.(type) {
 			case metricdata.Gauge[int64]:
 				for k := range data.DataPoints {
