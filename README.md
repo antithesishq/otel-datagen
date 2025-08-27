@@ -3,7 +3,7 @@
 ## Background
 
 Build a tool that:
-1. Generates Otel data
+1. Generates OTel data
 2. Injects some more challenging data to stress test downstream processing pipelines
 
 ## FEEDBACK REQUESTED
