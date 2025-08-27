@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Simple Antithesis test for basic log generation
+# Generates a single log record with default configuration
+
+set -euo pipefail
+
+# Generate a single log record with minimal configuration
+otel-datagen generate logs --num-logs=1

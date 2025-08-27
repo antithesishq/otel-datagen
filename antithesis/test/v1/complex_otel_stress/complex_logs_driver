@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Complex Antithesis driver for stress-testing log generation
+# Generates multiple log records with aggro cases and custom attributes
+
+set -euo pipefail
+
+# Generate high-volume log records with aggro probability and custom attributes
+./otel-datagen generate logs \
+    --num-logs=100 \
+    --num-attributes=10 \
+    --aggro-string="" \
+    --aggro-numeric="" \
+    --aggro-timestamp="" \
+    --resource-attr="service.name=complex-log-test" \
+    --resource-attr="service.version=1.0.0" \
+    --override-attr="test.scenario=complex"

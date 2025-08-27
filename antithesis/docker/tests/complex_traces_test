@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Complex Antithesis test for stress-testing trace generation
+# Generates multiple traces with many spans per trace, extensive attributes and aggro cases
+
+set -euo pipefail
+
+# Generate multiple traces with many spans per trace, extensive attributes and aggro probability
+otel-datagen generate traces \
+    --num-traces=5 \
+    --num-spans=5 \
+    --num-attributes=15 \
+    --aggro-string="" \
+    --aggro-numeric="" \
+    --aggro-timestamp="" \
+    --resource-attr="service.name=complex-trace-test" \
+    --resource-attr="deployment.environment=test" \
+    --override-attr="test.complexity=high"

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Simple Antithesis test for basic metric generation
+# Generates a single counter metric with default configuration
+
+set -euo pipefail
+
+# Generate a single counter metric with minimal configuration
+otel-datagen generate metrics --num-metrics=1

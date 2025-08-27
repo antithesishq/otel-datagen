@@ -1,0 +1,75 @@
+{
+  "name": "Unified Dev Sandbox (Fish + Brew)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      // Sets the container's timezone to match the local environment.
+      "TZ": "${localEnv:TZ:America/New_York}",
+      // You can lock versions here if needed.
+      "CLAUDE_CODE_VERSION": "latest",
+      "GEMINI_CLI_VERSION": "latest"
+    }
+  },
+  // Add required capabilities for networking tools.
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW"
+  ],
+  // Use the Docker-in-Docker feature to interact with the Docker daemon.
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": false
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens",
+        "evondev.dracula-high-contrast",
+        "golang.go",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "vscjava.vscode-java-pack",
+        "Anthropic.claude-code",
+        "yzhang.markdown-all-in-one",
+        "ms-vscode.makefile-tools"
+      ],
+      "settings": {
+        // Set fish as the default integrated terminal shell.
+        "terminal.integrated.defaultProfile.linux": "fish",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "icon": "terminal-bash"
+          },
+          "fish": {
+            "path": "/usr/bin/fish",
+            "icon": "terminal-command"
+          }
+        }
+      }
+    }
+  },
+  // Use the 'vscode' user created in the base image.
+  "remoteUser": "vscode",
+  // Mount volumes for persistent history and configuration.
+  // Note: fish history is stored in a different location than bash history.
+  "mounts": [
+    "source=dev-sandbox-fishhistory-${devcontainerId},target=/home/vscode/.local/share/fish/fish_history,type=volume",
+    "source=dev-sandbox-claude-config-${devcontainerId},target=/home/vscode/.claude,type=volume"
+  ],
+  // Set environment variables inside the container.
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+  },
+  // Define the workspace mount.
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "workspaceFolder": "/workspace"
+  // Command to run after the container is created.
+  // Ensures the 'vscode' user owns the workspace directory.
+  //"postCreateCommand": "sudo chown -R vscode:vscode /workspace"
+}

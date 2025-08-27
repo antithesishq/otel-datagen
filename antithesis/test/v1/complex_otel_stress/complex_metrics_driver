@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Complex Antithesis driver for stress-testing metric generation
+# Generates histogram metrics with wide value ranges and boundary cases
+
+set -euo pipefail
+
+# Generate histogram metrics with wide ranges and boundary probability
+./otel-datagen generate metrics \
+    --num-metrics=50 \
+    --metric-type=histogram \
+    --metric-name="complex_test_histogram" \
+    --counter-min=0 \
+    --counter-max=10000 \
+    --aggro-string="" \
+    --aggro-numeric="" \
+    --resource-attr="service.name=complex-metric-test"

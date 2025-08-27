@@ -1,0 +1,45 @@
+services:
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: otel-lgtm
+    ports:
+      - "3001:3000"   # Grafana UI and API
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "9090:9090"   # Prometheus API (PromQL queries)
+      - "3100:3100"   # Loki API (LogQL queries)
+      - "3200:3200"   # Tempo API (TraceQL queries)
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health && curl -f http://localhost:3100/ready && curl -f http://localhost:9090/-/ready && curl -f http://localhost:3200/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - lgtm-data:/data
+    networks:
+      - otel-network
+
+  otel-datagen:
+    image: localhost/antithesis-otel-datagen:latest 
+    container_name: otel-datagen
+    depends_on:
+      otel-lgtm:
+        condition: service_healthy
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4318
+      - ANTITHESIS_OUTPUT_DIR=/tmp/antithesis
+    volumes:
+      - antithesis-output:/tmp/antithesis
+    networks:
+      - otel-network
+
+volumes:
+  lgtm-data:
+    driver: local
+  antithesis-output:
+    driver: local
+
+networks:
+  otel-network:
+    driver: bridge

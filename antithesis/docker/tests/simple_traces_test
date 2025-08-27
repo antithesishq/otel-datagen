@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Simple Antithesis test for basic trace generation
+# Generates a single trace with a single span using minimal configuration
+
+set -euo pipefail
+
+# Generate a single trace with a single span using minimal configuration
+otel-datagen generate traces --num-traces=1 --num-spans=1

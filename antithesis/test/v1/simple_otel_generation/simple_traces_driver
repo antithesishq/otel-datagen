@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Simple Antithesis driver for basic trace generation
+# Generates a single span with default configuration
+
+set -euo pipefail
+
+# Generate a single trace with a three spans using minimal configuration
+./otel-datagen generate traces --num-traces=1 --num-spans=3

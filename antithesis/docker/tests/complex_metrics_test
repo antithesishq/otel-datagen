@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Complex Antithesis test for stress-testing metric generation
+# Generates multiple metrics with aggro cases and various types
+
+set -euo pipefail
+
+# Generate multiple histogram metrics with extensive attributes and aggro probability
+otel-datagen generate metrics \
+    --num-metrics=25 \
+    --metric-type=histogram \
+    --metric-name=complex_test_metric \
+    --counter-min=1 \
+    --counter-max=1000 \
+    --aggro-string="" \
+    --aggro-numeric="" \
+    --resource-attr="service.name=complex-metrics-test" \
+    --resource-attr="deployment.environment=test"
