@@ -33,7 +33,6 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "vscjava.vscode-java-pack",
-        "Anthropic.claude-code",
         "yzhang.markdown-all-in-one",
         "ms-vscode.makefile-tools"
       ],
@@ -58,13 +57,11 @@
   // Mount volumes for persistent history and configuration.
   // Note: fish history is stored in a different location than bash history.
   "mounts": [
-    "source=dev-sandbox-fishhistory-${devcontainerId},target=/home/vscode/.local/share/fish/fish_history,type=volume",
-    "source=dev-sandbox-claude-config-${devcontainerId},target=/home/vscode/.claude,type=volume"
+    "source=dev-sandbox-fishhistory-${devcontainerId},target=/home/vscode/.local/share/fish/fish_history,type=volume"
   ],
   // Set environment variables inside the container.
   "containerEnv": {
-    "NODE_OPTIONS": "--max-old-space-size=4096",
-    "CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+    "NODE_OPTIONS": "--max-old-space-size=4096"
   },
   // Define the workspace mount.
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
