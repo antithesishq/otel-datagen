@@ -1,4 +1,4 @@
-# OTelGen
+# otel-datagen
 
 ## Background
 
